@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Average vs. median wealth by country</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&family=Nunito:wght@400;700;800&display=swap">
+<style>
+:root{--bg:#fff8ec;--sf:#fffdf8;--tx:#3a2f2a;--mu:#8a7a6e;--bd:#ecd9bd;--a:#3b82f6;--m:#f59e0b;--r:#a855f7;--up:#16a34a;--dn:#ef4444;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1f1a16;--sf:#2a231d;--tx:#f3e9dc;--mu:#b3a393;--bd:#4a3f35;--a:#6b9cf0;--m:#f0a850;--r:#d97bb8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1f1a16;--sf:#2a231d;--tx:#f3e9dc;--mu:#b3a393;--bd:#4a3f35;--a:#6b9cf0;--m:#f0a850;--r:#d97bb8;color-scheme:dark}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--bg);color:var(--tx);font:15px/1.45 "Nunito",system-ui,"Noto Color Emoji",sans-serif}html{overflow-x:auto}
+header{padding:14px 16px 0;min-width:992px}.sticky{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:3px dotted var(--bd);padding:8px 16px 0;min-width:992px}
+h1{font-size:24px;font-weight:800;margin:0 0 10px;letter-spacing:-.3px;line-height:1.2}h1 small{display:block;font-size:13px;font-weight:700;color:var(--mu);letter-spacing:0}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.dd{position:relative}
+.dd>button,.bar select{background:var(--sf);color:var(--tx);border:2px solid var(--bd);border-radius:999px;padding:6px 14px;font:inherit;font-weight:700;cursor:pointer}
+.menu{display:none;position:absolute;top:100%;left:0;margin-top:4px;background:var(--sf);border:2px solid var(--bd);border-radius:18px;padding:10px;width:260px;max-height:60vh;overflow:auto;box-shadow:0 8px 24px rgba(0,0,0,.18)}
+.dd.open .menu{display:block}
+.menu label{display:flex;gap:8px;align-items:center;padding:3px 4px;cursor:pointer;border-radius:4px}
+.menu label:hover{background:var(--bg)}
+.menu .t{display:flex;gap:6px;margin-bottom:6px}.menu .it{display:flex;justify-content:space-between;padding:5px 6px;cursor:pointer;border-radius:4px}.menu .it:hover{background:var(--bg)}.menu .it b{color:var(--up);visibility:hidden}.menu .it.on b{visibility:visible}
+.menu input[type=text]{flex:1;min-width:0;background:var(--bg);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:4px 8px;font:inherit}
+.menu .t button{background:none;border:1px solid var(--bd);color:var(--tx);border-radius:6px;cursor:pointer;font:inherit;padding:2px 8px}
+#cnt{color:var(--mu);margin-left:auto}
+main{padding:0 16px 24px;min-width:992px}
+.wrap,.heads{display:grid;grid-template-columns:minmax(0,1fr) 80px minmax(0,1fr) 60px minmax(0,1fr)}.heads{margin-top:6px}
+.ph{padding:4px 4px 8px;font-weight:800;font-size:16px}
+.ph small{display:block;font-weight:400;color:var(--mu)}
+.row{cursor:pointer;height:24px;display:flex;align-items:center;gap:6px;padding:0 4px;font-size:12.5px;transition:opacity .1s}
+.row .n{width:150px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .k{width:30px;text-align:right;color:var(--mu);font-variant-numeric:tabular-nums}
+.row .b{flex:1;height:14px}
+.row .b i{display:block;height:100%;border-radius:99px}
+.row .v{width:68px;text-align:right;font-variant-numeric:tabular-nums;color:var(--mu)}
+.row.hl{border-radius:12px;background:color-mix(in srgb,var(--m) 16%,transparent)}
+.row.hl .v{color:var(--tx);font-weight:600}
+.dim .row:not(.hl){opacity:.45}
+svg{display:block;width:100%}
+svg path{fill:none;stroke-width:1.8;stroke-linecap:round;vector-effect:non-scaling-stroke;opacity:.5}
+svg path.hl{stroke-width:2.2;opacity:.9}
+.dimsvg path:not(.hl){opacity:.15}
+.intro{background:var(--sf);border:2px dashed var(--bd);border-radius:18px;padding:12px 18px;margin:6px 16px 14px;max-width:960px}.intro p{margin:6px 0}.intro b{color:var(--a)}
+footer{padding:0 16px 24px;color:var(--mu);font-size:12px;max-width:900px}
+footer a{color:var(--a)}
+</style></head><body>
+<header>
+<h1>🌍 Is a rich country full of rich people?</h1>
+</header>
+<div class="intro"><p>💡 <b>Does a high average mean the typical person is rich?</b> Not necessarily!</p>
+<p>The <b>average</b> wealth of a country is all of its wealth added up and divided by the number of adults. It tells you how much money a person has <i>on average</i>. Imagine 10 people in a room: nine have $10 and one is a billionaire. The average says everyone in the room is rich.</p>
+<p>But that is not what the <i>typical</i> person has. That is what the <b>median</b> shows: line everybody up from poorest to richest and look at the person standing exactly in the middle. In our room, that person has just $10.</p>
+<p>Most countries look a bit like this room: many poor people, and a few extremely rich people. The average wealth metric can mislead on how wealthy the typical person actually is. The wider the gap between average and median, the lower a country’s <b>wealth equality</b>, and high inequality is often linked to lower trust and a stronger sense of injustice. Follow the lines to see how a country’s rank changes, and hover over or click it to track it.</p></div>
+<div class="sticky">
+<div class="bar">
+ <div class="dd" id="ddC"><button>Countries ▾</button><div class="menu">
+  <div class="t"><input type="text" id="q" placeholder="Search…"><button id="all">All</button><button id="none">None</button></div><div id="cl"></div></div></div>
+ <select id="gl" title="Preset: selects the countries of a group"></select>
+ <select id="sc"><option value="lin">Linear scale</option><option value="log">Log scale</option></select>
+ <span id="cnt"></span>
+</div>
+<div class="heads"><div class="ph">📊 Average wealth<small>all wealth added up, ÷ number of adults</small></div><div></div><div class="ph">🧍 Median wealth<small>the typical adult: half have more, half less</small></div><div></div><div class="ph">⚖️ Wealth equality<small>median ÷ average (100% = equal)</small></div></div>
+</div>
+<main><div class="wrap" id="w"></div></main>
+<footer>Data: UBS Global Wealth Databook 2023 (end-2022 data, USD per adult), table 3-1, as compiled on <a href="https://en.wikipedia.org/wiki/List_of_countries_by_wealth_per_adult">Wikipedia</a> (CC BY-SA). Newer UBS reports only publish top-25/30 lists, so this is the latest edition covering ~170 countries. Lines connect each country’s rank by average (left) and by median (middle): <b style="color:var(--up)">green</b> = ranks higher by median, <b style="color:var(--dn)">red</b> = lower. Wealth equality = median ÷ average (100% = everyone has the same wealth; lower = a few hold most of it). Groups are my own definitions: North America includes Central America and the Caribbean; Western World = Western Europe, Nordics, Southern Europe, US, Canada, Australia, NZ; Ex-Warsaw-Pact = Poland, Czechia, Slovakia, Hungary, Romania, Bulgaria, Albania, Russia and the other ex-Soviet countries in the data.</footer>
+<script>
+const RAW=`Albania|17280|34839|Ex
+Algeria|3226|12491|F
+Angola|1716|5418|F
+Antigua and Barbuda|8916|30634|N
+Argentina|4354|13323|S
+Armenia|14215|34988|Ax
+Aruba|18428|61622|N
+Australia|247453|496819|Ow
+Austria|68492|245225|Ew
+Azerbaijan|9209|21578|Ax
+Bahamas|10885|72971|N
+Bahrain|13904|84313|A
+Bangladesh|3842|9796|A
+Barbados|31436|91291|N
+Belarus|18466|34835|Ex
+Belgium|249937|352814|Ew
+Belize|3928|14966|N
+Benin|922|2823|F
+Bolivia|4913|14222|S
+Bosnia and Herzegovina|16484|33593|E
+Botswana|3591|16567|F
+Brazil|5702|29452|S
+Brunei|6983|39908|A
+Bulgaria|22759|47074|Ex
+Burkina Faso|563|1713|F
+Burundi|453|947|F
+Cambodia|2185|6036|A
+Cameroon|910|3271|F
+Canada|137633|369577|Nw
+Central African Republic|260|952|F
+Chad|483|1297|F
+Chile|19544|54082|S
+China|27273|75731|A
+Colombia|4450|15464|S
+Comoros|1256|5285|F
+DR Congo|492|1662|F
+Congo|380|1465|F
+Costa Rica|19356|55545|N
+Croatia|34837|70461|E
+Cyprus|40957|158321|Ew
+Czech Republic|23502|90393|Ex
+Denmark|186041|409954|Ew
+Djibouti|1285|3853|F
+Dominica|13789|44406|N
+Ecuador|7610|21650|S
+Egypt|6656|20195|F
+El Salvador|15049|47422|N
+Equatorial Guinea|7501|30333|F
+Eritrea|1431|3688|F
+Estonia|39586|78777|Ex
+Ethiopia|2124|4905|F
+Fiji|5950|17998|O
+Finland|84093|179986|Ew
+France|133137|312235|Ew
+Gabon|5487|16217|F
+Gambia|735|2996|F
+Georgia|9451|28169|Ax
+Germany|66735|256179|Ew
+Ghana|2622|6423|F
+Greece|53501|105724|Ew
+Grenada|19736|64092|N
+Guinea|2060|6638|F
+Guinea-Bissau|664|1791|F
+Guyana|6896|18587|S
+Haiti|207|626|N
+Hong Kong|202406|551194|A
+Hungary|26416|59348|Ex
+Iceland|413193|498290|Ew
+India|3755|16500|A
+Indonesia|4819|17457|A
+Iran|17341|51147|A
+Ireland|90741|247080|Ew
+Israel|77604|235445|A
+Italy|107315|221370|Ew
+Jamaica|7529|24547|N
+Japan|103681|216078|A
+Jordan|14219|38923|A
+Kazakhstan|25225|58205|Ax
+Kenya|4356|14829|F
+Kuwait|41605|175072|A
+Kyrgyzstan|3398|8542|Ax
+Laos|1366|6191|A
+Latvia|46899|97583|Ex
+Lesotho|266|1531|F
+Liberia|1977|5886|F
+Libya|5223|13420|F
+Lithuania|32385|69541|Ex
+Luxembourg|360715|585950|Ew
+Madagascar|658|2257|F
+Malawi|620|2415|F
+Malaysia|8523|29314|A
+Maldives|7970|25187|A
+Mali|863|2658|F
+Malta|96835|160265|Ew
+Mauritania|1125|3013|F
+Mauritius|31103|68846|F
+Mexico|18920|55274|N
+Moldova|10131|20590|Ex
+Mongolia|3003|7578|A
+Montenegro|43438|81900|E
+Morocco|3896|13862|F
+Mozambique|570|1353|F
+Myanmar|3636|7670|A
+Namibia|4832|20690|F
+Nepal|1685|4672|A
+Netherlands|112450|358235|Ew
+New Zealand|193065|388761|Ow
+Nicaragua|5133|16083|N
+Niger|599|1436|F
+Nigeria|1507|6879|F
+Norway|143887|385338|Ew
+Oman|11377|48951|A
+Pakistan|2076|5226|A
+Panama|15724|50917|N
+Papua New Guinea|1828|8606|O
+Paraguay|4930|14809|S
+Peru|7555|22514|S
+Philippines|3155|14486|A
+Poland|20263|52741|Ex
+Portugal|70409|158840|Ew
+Qatar|90262|164992|A
+Romania|21545|44320|Ex
+Russia|8595|39514|Ex
+Rwanda|1711|5561|F
+Samoa|4150|11929|O
+São Tomé and Príncipe|1775|4162|F
+Saudi Arabia|20701|90975|A
+Senegal|1664|5009|F
+Serbia|16462|34080|E
+Seychelles|37787|94620|F
+Sierra Leone|329|749|F
+Singapore|99488|382957|A
+Slovakia|40703|62125|Ex
+Slovenia|75600|112526|E
+Solomon Islands|3429|11660|O
+South Africa|5141|23956|F
+South Korea|92719|230760|A
+Spain|107507|224209|Ew
+Sri Lanka|8615|23991|A
+Saint Lucia|12454|42301|N
+Saint Vincent and the Grenadines|7357|23728|N
+Suriname|1444|7885|S
+Sweden|77515|296800|Ew
+Switzerland|167353|685226|Ew
+Syria|680|1911|A
+Taiwan|108247|273788|A
+Tajikistan|1863|4592|Ax
+Tanzania|2005|4869|F
+Thailand|9602|25956|A
+Togo|488|1520|F
+Tonga|20960|55898|O
+Trinidad and Tobago|22957|55939|N
+Tunisia|7298|21087|F
+Turkey|5488|17578|A
+Uganda|798|2780|F
+United Arab Emirates|31761|152556|A
+United Kingdom|151825|302783|Ew
+United States|107739|551347|Nw
+Uruguay|33522|84778|S
+Vanuatu|5276|16347|O
+Venezuela|12955|33420|S
+Vietnam|5309|14569|A
+Yemen|1406|6492|A
+Zambia|774|3761|F`;
+const ISO='AL DZ AO AG AR AM AW AU AT AZ BS BH BD BB BY BE BZ BJ BO BA BW BR BN BG BF BI KH CM CA CF TD CL CN CO KM CD CG CR HR CY CZ DK DJ DM EC EG SV GQ ER EE ET FJ FI FR GA GM GE DE GH GR GD GN GW GY HT HK HU IS IN ID IR IE IL IT JM JP JO KZ KE KW KG LA LV LS LR LY LT LU MG MW MY MV ML MT MR MU MX MD MN ME MA MZ MM NA NP NL NZ NI NE NG NO OM PK PA PG PY PE PH PL PT QA RO RU RW WS ST SA SN RS SC SL SG SK SI SB ZA KR ES LK LC VC SR SE CH SY TW TJ TZ TH TG TO TT TN TR UG AE GB US UY VU VE VN YE ZM'.split(' ');
+const fl=c=>String.fromCodePoint(...[...c].map(x=>127397+x.charCodeAt(0)));
+const D=RAW.split('\n').map((l,i)=>{const [n,md,mn,c]=l.split('|');return{n,md:+md,mn:+mn,r:md/mn,c,f:fl(ISO[i])}});
+const G=[['All countries',''],['Europe','E'],['North America','N'],['South America','S'],['Africa','F'],['Asia','A'],['Australia & Oceania','O'],['Western World','w'],['Ex-Warsaw-Pact','x']];
+const H=24,$=id=>document.getElementById(id),fmt=v=>'$'+Math.round(v).toLocaleString('en-US');
+let sel=new Set(D.map(d=>d.n)),pin=null;
+const dd=['ddC'].map($);
+dd.forEach(d=>d.firstElementChild.onclick=e=>{e.stopPropagation();dd.forEach(o=>o!==d&&o.classList.remove('open'));d.classList.toggle('open')});
+document.addEventListener('click',e=>dd.forEach(d=>d.contains(e.target)||d.classList.remove('open')));
+const sorted=[...D].sort((a,b)=>a.n.localeCompare(b.n));
+$('cl').innerHTML=sorted.map(d=>`<label data-n="${d.n.toLowerCase()}"><input type="checkbox" data-c="${d.n}"> ${d.f} ${d.n}</label>`).join('');
+$('gl').innerHTML=G.map(([g,k])=>`<option value="${k}">${g}</option>`).join('')+'<option value="custom" disabled hidden>Custom selection</option>';
+$('cl').onchange=e=>{const n=e.target.dataset.c;e.target.checked?sel.add(n):sel.delete(n);draw()};
+$('gl').onchange=e=>{sel=new Set(D.filter(d=>d.c.includes(e.target.value)).map(d=>d.n));draw()};
+$('all').onclick=()=>{D.forEach(d=>sel.add(d.n));draw()};
+$('none').onclick=()=>{sel.clear();draw()};
+$('q').oninput=e=>{const s=e.target.value.toLowerCase();document.querySelectorAll('#cl label').forEach(l=>l.style.display=l.dataset.n.includes(s)?'':'none')};
+$('sc').onchange=draw;
+function draw(){
+ document.querySelectorAll('[data-c]').forEach(i=>i.checked=sel.has(i.dataset.c));
+ const hit=G.find(([g,k])=>{const m=D.filter(d=>d.c.includes(k));return m.length===sel.size&&m.every(d=>sel.has(d.n))});$('gl').value=hit?hit[1]:'custom';
+ const R=D.filter(d=>sel.has(d.n));$('cnt').textContent=R.length+' of '+D.length+' countries';
+ const log=$('sc').value==='log',mx=Math.max(1,...R.map(d=>d.mn));
+ const sc=v=>log?Math.max(1,(Math.log10(v)-2)/4*100):v/mx*100;
+ const A=[...R].sort((a,b)=>b.mn-a.mn),M=[...R].sort((a,b)=>b.md-a.md),Q=[...R].sort((a,b)=>b.r-a.r);
+ const rmx=Math.max(1,...R.map(d=>d.r));
+ const col=(L,key,color,w,f)=>`<div class="col">${L.map((d,i)=>`<div class="row" data-n="${d.n}"><span class="k">${i+1}.</span><span class="n">${d.f} ${d.n}</span><span class="b"><i style="width:${w(d[key])}%;background:${color}"></i></span><span class="v">${f(d[key])}</span></div>`).join('')}</div>`;
+ const ia=new Map(A.map((d,i)=>[d.n,i])),im=new Map(M.map((d,i)=>[d.n,i]));
+ const P=(a,b)=>`M0,${a} C55,${a} 45,${b} 100,${b}`,y=i=>i*H+H/2;
+ const lines=A.map((d,i)=>{const j=im.get(d.n),c=j<i?'var(--up)':j>i?'var(--dn)':'var(--mu)';return`<path data-n="${d.n}" d="${P(y(i),y(j))}" stroke="${c}"/>`}).join('');
+ const iq=new Map(Q.map((d,i)=>[d.n,i])),lines2=M.map((d,i)=>`<path data-n="${d.n}" d="${P(y(i),y(iq.get(d.n)))}" stroke="var(--r)"/>`).join('');
+ const svg=l=>`<svg viewBox="0 0 100 ${Math.max(H,R.length*H)}" preserveAspectRatio="none" height="${R.length*H}">${l}</svg>`;
+ $('w').innerHTML=''
+  +col(A,'mn','var(--a)',sc,fmt)+svg(lines)
+  +col(M,'md','var(--m)',sc,fmt)+svg(lines2)+col(Q,'r','var(--r)',v=>v*100,v=>Math.round(v*100)+'%');
+ if(pin&&!sel.has(pin))pin=null;hl(pin);
+}
+let off=null;
+$('w').addEventListener('mouseover',e=>{if(pin)return;const r=e.target.closest('[data-n]'),n=r&&r.dataset.n;if(n&&n===off)return;off=null;hl(n)});
+$('w').addEventListener('mouseleave',()=>{off=null;if(!pin)hl(null)});
+$('w').addEventListener('click',e=>{const r=e.target.closest('.row');if(!r)return;const n=r.dataset.n;if(pin===n){pin=null;off=n;hl(null)}else{pin=n;off=null;hl(n)}});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&pin){pin=null;hl(null)}});
+function hl(n){const w=$('w');w.classList.toggle('dim',!!n);w.querySelectorAll('svg').forEach(s=>s.classList.toggle('dimsvg',!!n));w.querySelectorAll('[data-n]').forEach(x=>x.classList.toggle('hl',x.dataset.n===n))}
+function fixH(){document.documentElement.style.setProperty('--hh',document.querySelector('header').offsetHeight+'px')}
+addEventListener('resize',fixH);fixH();draw();
+</script></body></html>
